@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Query Parameters</title>
+	<style>
+		ul {
+			list-style-type: circle;
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<h1>Query Parameters:</h1>
+	<ul id="queryList"></ul>
+	<script>
+		// Get the query parameters from the URL
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+
+		// Extract the q1, q2, q3, etc. parameters and add them to the list
+		const queryList = document.getElementById("queryList");
+		urlParams.forEach((value, key) => {
+			if (key.startsWith("q")) {
+				const listItem = document.createElement("li");
+				listItem.textContent = `${key}: ${value}`;
+				queryList.appendChild(listItem);
+			}
+		});
+	</script>
+</body>
+</html>
