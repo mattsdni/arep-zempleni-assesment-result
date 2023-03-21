@@ -1,31 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Query Parameters</title>
-	<style>
-		ul {
-			list-style-type: circle;
-			text-align: center;
-		}
-	</style>
+  <title>Your Personality Results</title>
 </head>
 <body>
-	<h1>Query Parameters:</h1>
-	<ul id="queryList"></ul>
-	<script>
-		// Get the query parameters from the URL
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
 
-		// Extract the q1, q2, q3, etc. parameters and add them to the list
-		const queryList = document.getElementById("queryList");
-		urlParams.forEach((value, key) => {
-			if (key.startsWith("q")) {
-				const listItem = document.createElement("li");
-				listItem.textContent = `${key}: ${value}`;
-				queryList.appendChild(listItem);
-			}
-		});
-	</script>
+  <h1>Your Personality Results</h1>
+
+  <h2>Strengths</h2>
+  <p>Your strengths are outstanding in the following areas: </p>
+  <ul id="top-skills"></ul>
+
+  <h2>Advice:</h2>
+  <p>You may want to take advantage of your above strengths by engaging in situations where they will serve you well. For example you could </p>
+  <ul id="advice"></ul>
+  <h2>Improvements</h2>
+  <p>Improvement area: <span id="improvement-area"></span></p>
+
+  <h2>Disclaimers</h2>
+  <p>This assessment is intended for educational purposes only and should not be understood to constitute any type of diagnosis or healthcare recommendation,nor does it constitute any legal or other professional advice on any subject matter. The assessment results, as all personality tests, are subject to imperfections and potential biases. The receiver of the assessment assumes full responsibility for any actions taken based on the assessment.</p>
+
+  <script>
+  	const csv = `Number	area_name	implication	use	action
+q1	competitiveness	perform best when in competition with others	seek out opportunities where your performance is evaluated in comparison to others, participate in a race	
+q2	desire to always improve	perform best when you are faced with difficult challenges, you take failures as an opportunity to learn and never stop improving	seek out tasks or projects where you have an opportunity to keep trying, getting feedback and improving until you have completed the challenge	seeking out opportunities where you can receive feedback on your performance and incorporate it to improve
+q3	leadership	perform best when in leadership positions, where you can direct and/or influence others	seek out opportunities where you can be in charge of a project or a team providing direction for others	
+q4	entrepreneur potential	have put in time and effort to prepare for starting your own business and have developed an eye for following trends and spotting market opportunities	start your own business (while this always involves risk, you seem well prepared compared to others) or join someone else’s in a strategic role	
+q5	confidence in yourself	are confident that you can succeed in any endeavor you choose	set ambitious goals and take on challenges, as you have the mindset to succeed at them	setting simple goals reasonably and approaching them one at a time, potentially at one sub-goal at a time
+q6	vision	enjoy thinking about big ideas and you are determined to make a positive change in the world	seek opportunities to work on big projects that have meaning to you and potential for making a positive impact	
+q7	productivity	are very effective in getting things done and persisting until your tasks are complete	seek opportunities where you can get rewarded for getting a lot of stuff done (e.g. being paid by task completion instead of by time worked)	experimenting with productivity improving practices such as making a reasonable to-do list with the 3-4 most important items for the day, working on them one at a time, and completing them before the end of the day
+q8	creativity	are inventive with high levels of creativity and lots of new ideas	seek opportunities where creativity, curiosity and new ideas are welcome (e.g. being paid for quality of ideas or solutions instead of hours worked or for doing routine tasks)	getting exposure for new ideas and ways of thinking such as by reading fiction or listening to podcasts
+q9	energy	are an upbeat and energetic person	seek opportunities where you can share your energy and good mood with others (e.g. finding a job that involves interacting with customers)	having a healthy diet, regular sleep schedule and daily exercise`
+
+const rows = csv.split('\n').map(row => {
+  const [number, area_name, implication, use, action] = row.split('	');
+  return { number, area_name, implication, use, action };
+});
+
+console.log(rows);
+
+    // Get query parameters q1-q9 as integers
+    const params = new URLSearchParams(window.location.search);
+    const queryObject = {};
+    for (let i = 1; i <= 9; i++) {
+      const key = `q${i}`;
+      const value = parseInt(params.get(key));
+      if (!isNaN(value)) {
+        queryObject[key] = value;
+      }
+    }
+
+    // Sort the query parameters in descending order and pick the top 3
+    const topSkills = Object.entries(queryObject)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+
+    // Create a bulleted list of the top 3 query parameters
+    const topSkillsList = document.getElementById("top-skills");
+    const adviceList = document.getElementById("advice");
+    for (const [key, value] of topSkills) {
+      const li = document.createElement("li");
+      let index = parseInt(key.substring(1));
+      let row = rows[index];
+      //[area1], which means that you [implication1]
+      li.textContent = `${row['area_name']}, which means that you ${row['implication']}`;
+      topSkillsList.appendChild(li);
+      const li2 = document.createElement("li");
+      li2.textContent = `${row['use']}`;
+      adviceList.appendChild(li2);
+    }
+
+    // Find the key of the lowest value among q2, q5, q7, q8, and q9
+    const improvementArea = Object.entries(queryObject)
+      .filter(([key]) => ["q2", "q5", "q7", "q8", "q9"].includes(key))
+      .reduce((min, [key, value]) => value < min[1] ? [key, value] : min, ["", Infinity]);
+
+    // Display the key of the lowest value as "improvement area"
+    const improvementAreaText = document.getElementById("improvement-area");
+    let index = parseInt(improvementArea[0].substring(1));
+    let row = rows[index];
+    improvementAreaText.textContent = `In addition to capitalizing on your strengths, if you would like to improve in other areas, you may want to invest some effort into improving your ${row['area_name']} for example by ${row['action']}.`;
+  </script>
+
 </body>
 </html>
