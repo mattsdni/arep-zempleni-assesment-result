@@ -37,8 +37,6 @@ const rows = csv.split('\n').map(row => {
   return { number, area_name, implication, use, action };
 });
 
-console.log(rows);
-
     // Get query parameters q1-q9 as integers
     const params = new URLSearchParams(window.location.search);
     const queryObject = {};
@@ -70,9 +68,12 @@ console.log(rows);
       adviceList.appendChild(li2);
     }
 
+    let improveFilter = topSkills.map(item => item[0]);
+    let improveKeys = ["q2", "q5", "q7", "q8", "q9"].filter(item => !improveFilter.includes(item));
+
     // Find the key of the lowest value among q2, q5, q7, q8, and q9
     const improvementArea = Object.entries(queryObject)
-      .filter(([key]) => ["q2", "q5", "q7", "q8", "q9"].includes(key))
+      .filter(([key]) => improveKeys.includes(key))
       .reduce((min, [key, value]) => value < min[1] ? [key, value] : min, ["", Infinity]);
 
     // Display the key of the lowest value as "improvement area"
